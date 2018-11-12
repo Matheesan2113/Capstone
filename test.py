@@ -4,7 +4,7 @@ import pandas as pd
 from pprint import pprint 
 
 #Gensim
-import Gensim
+import gensim
 import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
 from gensim.models import CoherenceModel
@@ -16,7 +16,7 @@ import spacy
 import pyLDAvis
 import pyLDAvis.gensim #Important
 import matplotlib.pyplot as plt 
-%matplotlib inline
+#%matplotlib inline
 
 #Enable logging for gensim
 import logging
@@ -31,6 +31,6 @@ stop_words= stopwords.words('english')
 stop_words.extend(['from','subject','re','edu','use'])
 
 #Import Dataset
-df = pd.read_json(https://raw.githubusercontent.com/selva86/datasets/master/newsgroups.json')
+df = pd.read_json('https://raw.githubusercontent.com/selva86/datasets/master/newsgroups.json')
 print(df.target_names.unique())
 df.head()
