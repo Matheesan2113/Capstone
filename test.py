@@ -65,8 +65,8 @@ bigram = gensim.models.Phrases(data_words,min_count=5,threshold=100) #Higher thr
 trigram = gensim.models.Phrases(bigram[data_words],threshold=100)
 
 #Faster way to get sentence clubbed as birgram/trigram
-bigram_mod = gensim.models.phrases.Phraser(bigram)
-trigram_mod = gensim.models.phrases.Phraser(trigram)
+bigram_mod = gensim.models.Phrases.Phraser(bigram)
+trigram_mod = gensim.models.Phrases.Phraser(trigram)
 
 #See trigram example
 print("-----------------------------")
@@ -79,7 +79,7 @@ def remove_stopwords(texts):
 def make_bigrams(texts):
     return [trigram_mod[bigram_mod[doc]] for doc in texts]
 
-def lemmatization(texts, alllowed_postags=['NOUN','ADJ','VERB','ADV']):
+def lemmatization(texts, allowed_postags=['NOUN','ADJ','VERB','ADV']):
     """https://spacy.io/api/annotation"""
     texts_out= []
     for sent in texts:
@@ -94,11 +94,24 @@ data_words_nostops = remove_stopwords(data_words)
 data_words_bigrams = make_bigrams(data_words_nostops)
 
 #finitialize spacy 'en' model
-nlp = spacy.load('{en}', disable=['parser','ner'])
+nlp = spacy.load('en', disable=['parser','ner'])
 
 #Do lemmatization keeping only nouns, adjectives, verbs and adverbs
-data_lemmatized = lemmatization(data_words_bigrams, alllowed_postags=['NOUN','ADJ','VERB','ADV'])
+data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
 
 #Print data after removing stop words, form bigram and lemmatizing data
 print("-------------------------------------")
 print(data_lemmatized[:1])
+
+
+#Create Dict
+id2word = corpora.Dictionary(data_lemmatized)
+
+#Create Corpus
+texts = data_lemmatized
+
+#Term Document Frequency
+corpus = [id2word.doc2bow(text) for text in texts]
+
+#View
+print(corpus[:1])
