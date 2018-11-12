@@ -54,7 +54,6 @@ pprint(data[:1])
 def sent_to_words(sentences):
     for sentence in sentences:
         yield(gensim.utils.simple_preprocess(str(sentence), deacc=True)) #Removes Punctuations
-
 data_words = list(sent_to_words(data))
 #result from breaking down each sentence into a list of words through TOKENIZATION
 print(data_words[:1])
@@ -63,22 +62,19 @@ print(data_words[:1])
 #Build bigram & Trigram models
 bigram = gensim.models.Phrases(data_words,min_count=5,threshold=100) #Higher threshold = fewer phrases
 trigram = gensim.models.Phrases(bigram[data_words],threshold=100)
-
 #Faster way to get sentence clubbed as birgram/trigram
-bigram_mod = gensim.models.Phrases.Phraser(bigram)
-trigram_mod = gensim.models.Phrases.Phraser(trigram)
-
+bigram_mod = gensim.models.phrases.Phraser(bigram)
+trigram_mod = gensim.models.phrases.Phraser(trigram)
 #See trigram example
 print("-----------------------------")
 print(trigram_mod[bigram_mod[data_words[0]]])
 
+
 #define functions for stopwords, bi/trigrams and lemmatization
 def remove_stopwords(texts):
     return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
-
 def make_bigrams(texts):
     return [trigram_mod[bigram_mod[doc]] for doc in texts]
-
 def lemmatization(texts, allowed_postags=['NOUN','ADJ','VERB','ADV']):
     """https://spacy.io/api/annotation"""
     texts_out= []
@@ -89,16 +85,12 @@ def lemmatization(texts, allowed_postags=['NOUN','ADJ','VERB','ADV']):
 
 #remove Stop words
 data_words_nostops = remove_stopwords(data_words)
-
 #form bigrams
 data_words_bigrams = make_bigrams(data_words_nostops)
-
 #finitialize spacy 'en' model
 nlp = spacy.load('en', disable=['parser','ner'])
-
 #Do lemmatization keeping only nouns, adjectives, verbs and adverbs
 data_lemmatized = lemmatization(data_words_bigrams, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV'])
-
 #Print data after removing stop words, form bigram and lemmatizing data
 print("-------------------------------------")
 print(data_lemmatized[:1])
@@ -106,12 +98,9 @@ print(data_lemmatized[:1])
 
 #Create Dict
 id2word = corpora.Dictionary(data_lemmatized)
-
 #Create Corpus
 texts = data_lemmatized
-
 #Term Document Frequency
 corpus = [id2word.doc2bow(text) for text in texts]
-
 #View
 print(corpus[:1])
