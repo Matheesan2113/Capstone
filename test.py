@@ -1,3 +1,4 @@
+import os
 import re
 import numpy as numpy
 import pandas as pd
@@ -30,22 +31,23 @@ from nltk.corpus import stopwords
 stop_words= stopwords.words('english')
 stop_words.extend(['from','subject','re','edu','use'])
 
-#Import Dataset
-df = pd.read_json('https://raw.githubusercontent.com/selva86/datasets/master/newsgroups.json')
-print(df.target_names.unique())
-#Show first 5 of df
+# Import Dataset
+basePath = os.path.dirname(os.path.abspath(__file__))
+print(basePath)
+df = pd.read_json(basePath+'/59.json')
+print(df.text.unique())
 df.head()
 
 
 #Convert to List
-data = df.content.values.tolist()
+data = df.text.values.tolist()
 
 #Remove Emails
-data = [re.sub('\S*@\S*\s?', '',sent) for sent in data]
+#data = [re.sub('\S*@\S*\s?', '',sent) for sent in data]
 #Remove new line characters
-data = [re.sub('\s+',' ',sent) for sent in data]
+#data = [re.sub('\s+',' ',sent) for sent in data]
 #Remove distracting single qquotes
-data = [re.sub("\'", "", sent) for sent in data]
+#data = [re.sub("\'", "", sent) for sent in data]
 #Print data from email after cleaning up with REGEX
 pprint(data[:1])
 
@@ -104,3 +106,41 @@ texts = data_lemmatized
 corpus = [id2word.doc2bow(text) for text in texts]
 #View
 print(corpus[:1])
+
+#[[(id2word[id], freq) for id, freq in cp] for cp in corpus[:1]]
+
+
+# Build LDA model
+lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,id2word=id2word,
+num_topics=15, random_state=100, update_every=1, chunksize=100, passes=10, alpha='auto', per_word_topics=True)
+print("TEST: DONE LDA MODEL BUILDING")
+
+# Print the Keyword in the 20 topics
+pprint(lda_model.print_topics())
+#doc_lda = lda_model[corpus]
+
+
+# Compute Perplexity
+print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
+# Compute Coherence Score
+#coherence_model_lda = CoherenceModel(model=lda_model, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
+#coherence_lda = coherence_model_lda.get_coherence()
+#print('\nCoherence Score: ', coherence_lda)
+print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+
+# Visualize the topics
+#pyLDAvis.enable_notebook()
+vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+pyLDAvis.save_html(vis, 'LDA_Visualization.html')
+
+
+
+#malletPath
+mallet_path ='/mallet-2.0.8/bin/mallet'
+ldamallet = gensim.models.wrappers.LdaMallet(mallet_path, corpus=corpus, num_topics=20, id2word=id2word)
+#Show topics
+pprint(ldamallet.show_topics(formatted=False))
+# Compute Coherence Score
+coherence_model_ldamallet = CoherenceModel(model=ldamallet, texts=data_lemmatized, dictionary=id2word, coherence='c_v')
+coherence_ldamallet = coherence_model_ldamallet.get_coherence()
+print('\nCoherence Score: ', coherence_ldamallet)
