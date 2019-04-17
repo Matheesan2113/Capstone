@@ -1,7 +1,7 @@
 
 # **Capstone EB04**
 
-The following version of the code is for finding like minded user communities using regular lda analysis in order to find topics combined with clustering. This is the first of two different methods that were attempted.
+The following version of the code is for finding like minded user communities using regular lda analysis in order to find topics combined with clustering. This is the first of two different methods that were attempted. This method is without meta level topics.
 
 ## Imports
 
